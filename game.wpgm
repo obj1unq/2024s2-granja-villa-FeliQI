@@ -1,18 +1,36 @@
 import wollok.game.*
 import hector.*
 import cultivos.*
+import objetos.*
+
+const mercado1 = new Mercado(fondos = 250, position = game.at(0,9))
+const mercado2 = new Mercado(fondos = 500, position = game.at(5,5))
+const mercado3 = new Mercado(fondos = 1000, position = game.at(9,0))
 
 program farmville {
-	//  CONFIG	
+		
 	game.title("La granja de Héctor")
 	game.height(10)
 	game.width(10)
 	game.ground("ground.png")
 
-	//  VISUALES
+	
+	keyboard.m().onPressDo({hector.sembrar(new Maiz(position = hector.position()))})
+	keyboard.t().onPressDo({hector.sembrar(new Trigo(position = hector.position()))})
+	keyboard.o().onPressDo({hector.sembrar(new Tomaco(position = hector.position()))})
+	keyboard.r().onPressDo({hector.regar()})
+	keyboard.c().onPressDo({hector.cosechar()})
+	keyboard.v().onPressDo({hector.vender()})
+	keyboard.space().onPressDo({hector.contarBienes()})
+	keyboard.a().onPressDo({hector.colocarAspersor()})
+	keyboard.a().onPressDo({hector.venderMercaderia()})
+	
+	
+
  	game.addVisualCharacter(hector)
- 	game.addVisual(new Maiz()) // Se agrega a modo de prueba
- 	
- 	//  COMIENZA
+	game.addVisual(mercado1)
+	game.addVisual(mercado2)
+	game.addVisual(mercado3) 	
+
 	game.start()
 }
