@@ -1,9 +1,23 @@
-import example.pepita
+import wollok.game.*
+import cultivos.*
+import objetos.*
+import hector.*
 
-describe "group of tests for pepita" {
+describe "Granja" {
 
-  test "pepita has initial energy" {
-    assert.equals(100, pepita.energy())
+  test "sembrar y regar" {
+    hector.sembrar(new Maiz(position = hector.position()))
+
+    assert.equals(Maiz, hector.terreno().cultivoQueEstaAqui(Maiz))
+    
+    /*hector.position(game.at(1, 1))
+    hector.sembrar(new Trigo(position = hector.position()))
+    hector.position(game.at(2, 2))
+    hector.sembrar(new Tomaco(position = hector.position()))
+
+    assert.equals([Maiz, Trigo, Tomaco], granja.cultivosSembrados())*/
+
+  
   }
 
 }
