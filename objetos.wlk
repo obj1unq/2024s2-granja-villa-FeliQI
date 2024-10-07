@@ -22,14 +22,14 @@ object granja {
 		return cultivosSembrados.filter({cosa => cosa.estaEnPosicion(position)})
 	}
 
-	method estaEnPosicion(position) {
-		return position.x() >= (position.x() + 1) and position.x() < (position.x() - 1) and
-			   position.y() >= (position.y() + 1) and position.y() < (position.y() - 1)
+	method hayUnaPlantaArriba(position) {
+		return cultivosSembrados.any({cosa => (cosa.position().y()).equals(position.y()+1) and 
+											  (cosa.position().x()).equals(position.x())})
 	}
 }
 
 
-class Mercado {
+/*class Mercado {
     var fondos = null
     const property mercaderia = []
     var property position = null
@@ -37,7 +37,7 @@ class Mercado {
     method comprar(mercaderia) {
 
     }
-}
+}*/
 
 class Aspersor {
 	var property position = null
@@ -49,7 +49,7 @@ class Aspersor {
 	}
 
 	method regar() {
-		terreno.cultivosAlRededorDe(position).forEach({cosa => cosa.serRegado(terreno)})
+		terreno.cultivosAlrededorDe(position).forEach({cosa => cosa.serRegado(terreno)})
 	}
 
 }

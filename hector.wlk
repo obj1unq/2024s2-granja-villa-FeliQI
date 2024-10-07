@@ -1,8 +1,7 @@
 import wollok.game.*
 import cultivos.*
 import objetos.*
-
-// Me quede despierto toda la noche, no funciona nada, me rindo Isa :(
+import posiciones.*
 
 object hector {
 	var property position = game.origin()
@@ -10,6 +9,13 @@ object hector {
 	const property terreno = granja
 	const cultivosAlmacenados = []
 	var ahorros = 0
+
+	method mover(direccion) {
+		const nuevaPosicion = direccion.siguiente(position)
+        if (nuevaPosicion.x() >= 0 and nuevaPosicion.x() < (game.width() - 1) and
+            nuevaPosicion.y() >= 0 and nuevaPosicion.y() < (game.height()- 1)) {
+            position = nuevaPosicion }
+	}
 
 	method validarSembrar(cultivo) {
 		if(terreno.hayUnaPlantaAqui(position)){
@@ -44,12 +50,11 @@ object hector {
 	method cosechar() {
 		self.validarCosechar()
 		self.almacenarCultivo()
-		terreno.cultivoQueEstaAqui().serCosechado()
-		
+		terreno.cultivoQueEstaAqui(position).serCosechado()
 	}
 
 	method almacenarCultivo() {
-		cultivosAlmacenados.add(terreno.cultivoQueEstaAqui())
+		cultivosAlmacenados.add(terreno.cultivoQueEstaAqui(position))
 	}
 
 	method vender() {
@@ -65,6 +70,7 @@ object hector {
 	method colocarAspersor() {
 		const aspersor = new Aspersor(position = position)
 		game.addVisual(aspersor)
+		aspersor.empezarARegar()
 	}
 
 	method verificarMercado() {

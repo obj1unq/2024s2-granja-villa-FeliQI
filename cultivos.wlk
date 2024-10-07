@@ -10,7 +10,7 @@ class Maiz {
 		return position
 	}
 	method image() {
-		return "corn_baby.png"
+		return image
 	}
 
 	method serRegado(terreno) {
@@ -31,19 +31,27 @@ class Maiz {
 		return 150
 	}
 
+	method estaEnPosicion(positionAspersor) {
+		return position.x() <= (positionAspersor.x() + 1) and
+			   position.x() >= (positionAspersor.x() - 1) and
+			   position.y() <= (positionAspersor.y() + 1) and
+			   position.y() >= (positionAspersor.y() - 1)
+	}
+
 }
 
 class Trigo {
 	var property etapa = 0
 	var property position = null
-	const image = "wheat_" + etapa + ".png"
+	var image = "wheat_" + etapa + ".png"
 
 	method image() {
 		return image
 	}
 
 	method serRegado(terreno) {
-		etapa += 1
+		etapa = (etapa + 1).min(3)
+		image = "wheat_" + etapa + ".png"
 		game.removeVisual(self)
 		game.addVisual(self)
 	}
@@ -59,6 +67,13 @@ class Trigo {
 	method valor() {
 		return (etapa - 1) * 100
 	}
+
+	method estaEnPosicion(positionAspersor) {
+		return position.x() <= (positionAspersor.x() + 1) and
+			   position.x() >= (positionAspersor.x() - 1) and
+			   position.y() <= (positionAspersor.y() + 1) and
+			   position.y() >= (positionAspersor.y() - 1)
+	}
 }
 
 class Tomaco {
@@ -69,7 +84,7 @@ class Tomaco {
 	}
 
 	method validarRegado(terreno) {
-		if(terreno.hayUnaPlantaArriba()) {
+		if(terreno.hayUnaPlantaArriba(position)) {
 			self.error("El tomaco no se puede regar ya que hay una planta
 			en la posicion a la que se debe mover")
 		}
@@ -91,5 +106,11 @@ class Tomaco {
 	method valor() {
 		return 80
 	}
-}
 
+	method estaEnPosicion(positionAspersor) {
+		return position.x() <= (positionAspersor.x() + 1) and
+			   position.x() >= (positionAspersor.x() - 1) and
+			   position.y() <= (positionAspersor.y() + 1) and
+			   position.y() >= (positionAspersor.y() - 1)
+	}
+}
