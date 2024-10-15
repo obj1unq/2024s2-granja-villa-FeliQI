@@ -1,9 +1,175 @@
-import example.pepita
+import wollok.game.*
+import cultivos.*
+import objetos.*
+import hector.*
+import posiciones.*
 
-describe "group of tests for pepita" {
+describe "Granja" {
 
-  test "pepita has initial energy" {
-    assert.equals(100, pepita.energy())
+  test "Sembrar" {
+    hector.sembrar(new Maiz(position = hector.position()))
+    assert.equals("corn_baby.png", granja.cultivoQueEstaAqui(hector.position()).image())
+    hector.mover(arriba)
+	  
+    hector.sembrar(new Trigo(position = hector.position()))
+    assert.equals("wheat_0.png", granja.cultivoQueEstaAqui(hector.position()).image())
+    hector.mover(arriba)
+
+	  hector.sembrar(new Tomaco(position = hector.position()))
+    assert.equals("tomaco_baby.png", granja.cultivoQueEstaAqui(hector.position()).image())
+  }
+
+  test "Error al sembrar" {
+    hector.sembrar(new Maiz(position = hector.position()))
+    assert.throwsException({ hector.sembrar(new Maiz(position = hector.position())) })
+  }
+
+  test "Regar" {
+    hector.sembrar(new Maiz(position = hector.position()))
+    hector.mover(arriba)
+    hector.sembrar(new Trigo(position = hector.position()))
+    hector.mover(arriba)
+    hector.sembrar(new Tomaco(position = hector.position()))
+
+    hector.regar()
+    assert.notThat(granja.hayPlantaAqui(hector.position()))
+    hector.mover(arriba)
+    assert.equals("tomaco_baby.png", granja.cultivoQueEstaAqui(hector.position()).image())
+
+    hector.mover(abajo)
+    hector.mover(abajo)
+    hector.regar()
+    assert.equals("wheat_1.png", granja.cultivoQueEstaAqui(hector.position()).image())
+
+    hector.mover(abajo)
+    hector.regar()
+    assert.equals("corn_adult.png", granja.cultivoQueEstaAqui(hector.position()).image())
+  }
+
+  test "Regar la nada" {
+    assert.throwsException({ hector.regar() })
+  }
+
+  test "Regar de mas maiz y trigo" {
+    hector.sembrar(new Maiz(position = hector.position()))
+    hector.mover(arriba)
+    hector.sembrar(new Trigo(position = hector.position()))
+    
+    assert.equals(0, granja.cultivoQueEstaAqui(hector.position()).etapa())
+    hector.regar()
+    hector.regar()
+    hector.regar()
+    hector.regar()
+    hector.regar()
+    hector.regar()
+    assert.equals(3, granja.cultivoQueEstaAqui(hector.position()).etapa())
+
+    hector.mover(abajo)
+    hector.regar()
+    hector.regar()
+    hector.regar()
+    assert.that(granja.cultivoQueEstaAqui(hector.position()).esAdulta())
+  }
+
+  test "Regar de mas tomaco" {
+    hector.position(game.at(10,10))
+    hector.sembrar(new Tomaco(position = hector.position()))
+    hector.regar()
+    assert.that(granja.hayPlantaAqui(hector.position()))
+  }
+
+  test "Cosechar" {
+    hector.sembrar(new Maiz(position = hector.position()))
+    hector.regar()
+    hector.cosechar()
+
+    assert.notThat(granja.hayPlantaAqui(hector.position()))
+    assert.equals(1, hector.cultivosAlmacenados().size())
+
+    hector.sembrar(new Trigo(position = hector.position()))
+    hector.regar()
+    hector.regar()
+    hector.regar()
+    hector.cosechar()
+
+    assert.notThat(granja.hayPlantaAqui(hector.position()))
+    assert.equals(2, hector.cultivosAlmacenados().size())
+
+    hector.sembrar(new Tomaco(position = hector.position()))
+    hector.regar()
+    hector.mover(arriba)
+    hector.cosechar()
+
+    assert.notThat(granja.hayPlantaAqui(hector.position()))
+    assert.equals(3, hector.cultivosAlmacenados().size())
+  }
+
+  test "Cosechar la nada y cosechar plantas que no estan listas" {
+    hector.sembrar(new Maiz(position = hector.position()))
+    assert.throwsException({ hector.cosechar() })
+
+    hector.mover(arriba)
+    assert.throwsException({ hector.cosechar() })
+
+    hector.sembrar(new Trigo(position = hector.position()))
+    assert.throwsException({ hector.cosechar() })
+    hector.regar()
+    assert.throwsException({ hector.cosechar() })
+    hector.regar()
+    hector.cosechar()
+    assert.notThat(granja.hayPlantaAqui(hector.position()))
+  }
+
+  //  Haciendo los tests me di cuenta de que la parte de venta iba por separado de los mercados
+  //  pero bueno tambien tiene sentido que lo manejen los mercados
+
+  test "Aspersores regar" {
+    hector.colocarAspersor()
+    hector.mover(arriba)
+    hector.sembrar(new Trigo(position = hector.position()))
+    hector.mover(abajo)
+    
+    assert.that(granja.hayAspersor(hector.position()))
+    hector.mover(arriba)
+    assert.equals(0, granja.cultivoQueEstaAqui(hector.position()).etapa())
+
+    granja.aspersores().anyOne().regar()
+    assert.equals(1, granja.cultivoQueEstaAqui(hector.position()).etapa())
+  }
+
+  test "Colocar 2 aspersores en el mismo lugar" {
+    hector.colocarAspersor()
+    hector.colocarAspersor()
+
+    assert.equals(1, granja.aspersores().size())
+  }
+
+  test "Crear mercado" {
+    mercadoAdmin.nuevoMercado()
+
+    assert.equals(1, granja.mercados().size())
+
+  }
+
+  test "Vender y comprar en mercado" {
+    granja.mercados().add(mercadoFactory.construir(hector.position()))
+    hector.mover(arriba)
+    hector.sembrar(new Maiz(position = hector.position()))
+    hector.regar()
+    hector.cosechar()
+    hector.mover(abajo)
+
+    hector.vender()
+
+    assert.equals(1, granja.mercadoAqui(hector.position()).mercaderia().size())
+    assert.equals(0, hector.cultivosAlmacenados().size())
+    assert.equals(150, hector.ahorros())
+
+    hector.comprar()
+
+    assert.equals(0, granja.mercadoAqui(hector.position()).mercaderia().size())
+    assert.equals(1, hector.cultivosAlmacenados().size())
+    assert.equals(0, hector.ahorros())
   }
 
 }
