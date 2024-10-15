@@ -3,24 +3,28 @@ import wollok.game.*
 
 
 class Maiz {
-	var property position = null
-	var image = "corn_baby.png"
+	const property position = null
+	var property esAdulta = false
 
 	method position() {
 		return position
 	}
 	method image() {
-		return image
+		return "corn_" + self.imagenEtapa() + ".png"
+	}
+
+	method imagenEtapa() {
+		return if(esAdulta) {
+			"adult"
+		} else "baby"
 	}
 
 	method serRegado(terreno) {
-		image = "corn_adult.png"
-		game.removeVisual(self)
-		game.addVisual(self)
+		esAdulta = true
 	}
 
 	method estaCosechable() {
-		return image == "corn_adult.png"
+		return esAdulta
 	}
 
 	method serCosechado() {
@@ -31,29 +35,22 @@ class Maiz {
 		return 150
 	}
 
-	method estaEnPosicion(positionAspersor) {
-		return position.x() <= (positionAspersor.x() + 1) and
-			   position.x() >= (positionAspersor.x() - 1) and
-			   position.y() <= (positionAspersor.y() + 1) and
-			   position.y() >= (positionAspersor.y() - 1)
-	}
-
 }
 
 class Trigo {
 	var property etapa = 0
-	var property position = null
-	var image = "wheat_" + etapa + ".png"
+	const property position = null
 
 	method image() {
-		return image
+		return "wheat_" + etapa + ".png"
 	}
 
 	method serRegado(terreno) {
-		etapa = (etapa + 1).min(3)
-		image = "wheat_" + etapa + ".png"
-		game.removeVisual(self)
-		game.addVisual(self)
+		etapa = self.siguienteEtapa()
+	}
+
+	method siguienteEtapa() {
+		return (etapa + 1).min(3)
 	}
 
 	method estaCosechable() {
@@ -68,12 +65,6 @@ class Trigo {
 		return (etapa - 1) * 100
 	}
 
-	method estaEnPosicion(positionAspersor) {
-		return position.x() <= (positionAspersor.x() + 1) and
-			   position.x() >= (positionAspersor.x() - 1) and
-			   position.y() <= (positionAspersor.y() + 1) and
-			   position.y() >= (positionAspersor.y() - 1)
-	}
 }
 
 class Tomaco {
@@ -83,16 +74,18 @@ class Tomaco {
 		return "tomaco_baby.png"
 	}
 
-	method validarRegado(terreno) {
-		if(terreno.hayUnaPlantaArriba(position)) {
-			self.error("El tomaco no se puede regar ya que hay una planta
-			en la posicion a la que se debe mover")
-		}
+	method puedeMover(terreno) {
+		const nuevaPosicion = position.up(1)
+		return not terreno.hayPlantaAqui(nuevaPosicion) and
+			   nuevaPosicion.y() < game.height()
+		
 	}
 
 	method serRegado(terreno) {
-		self.validarRegado(terreno)
-		position = position.up(1)
+		if(self.puedeMover(terreno)){
+			position = position.up(1)
+		}
+		
 	}
 
 	method estaCosechable() {
@@ -107,10 +100,4 @@ class Tomaco {
 		return 80
 	}
 
-	method estaEnPosicion(positionAspersor) {
-		return position.x() <= (positionAspersor.x() + 1) and
-			   position.x() >= (positionAspersor.x() - 1) and
-			   position.y() <= (positionAspersor.y() + 1) and
-			   position.y() >= (positionAspersor.y() - 1)
-	}
 }
